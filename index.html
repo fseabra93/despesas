@@ -3,14 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>Registrar despesa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+    textarea {
+      width: 100%;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 15px;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
 
   <h2>Registrar despesa</h2>
 
-  <textarea id="mensagem" rows="4" cols="50"
-    placeholder="Ex: Gastei 45 reais na padaria com cartão de crédito"></textarea>
-  <br><br>
+  <textarea
+    id="mensagem"
+    rows="4"
+    placeholder="Ex: Gastei 45 reais na padaria Bonfim com cartão de débito">
+  </textarea>
+
+  <br>
 
   <button onclick="enviar()">Enviar</button>
 
@@ -18,25 +43,48 @@
 
   <script>
     async function enviar() {
-      const texto = document.getElementById("mensagem").value;
+      const texto = document.getElementById("mensagem").value.trim();
+      const status = document.getElementById("status");
 
-      const response = await fetch(
-        "https://fseabra93.app.n8n.cloud/webhook/chat/99cb48bd-5e88-4a03-bc33-5d8e93d28393",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer ipiaba"
-          },
-          body: JSON.stringify({
-            chatInput: texto,
-            sessionId: "site-despesas"
-          })
+      if (!texto) {
+        status.innerText = "Digite uma mensagem antes de enviar.";
+        return;
+      }
+
+      status.innerText = "Enviando...";
+
+      try {
+        const response = await fetch(
+          "https://fseabra93.app.n8n.cloud/webhook/chat/99cb48bd-5e88-4a03-bc33-5d8e93d28393",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer ipiaba"
+            },
+            body: JSON.stringify({
+              chatInput: texto,
+              sessionId: "site-despesas"
+            })
+          }
+        );
+
+        const respostaTexto = await response.text();
+
+        if (response.ok) {
+          status.innerText =
+            "Mensagem enviada com sucesso.\n\nResposta do n8n:\n" +
+            respostaTexto;
+        } else {
+          status.innerText =
+            "Erro HTTP " + response.status + ":\n" +
+            respostaTexto;
         }
-      );
 
-      document.getElementById("status").innerText =
-        response.ok ? "Mensagem enviada com sucesso." : "Erro ao enviar.";
+      } catch (erro) {
+        status.innerText =
+          "Erro de rede ou CORS:\n" + erro.message;
+      }
     }
   </script>
 

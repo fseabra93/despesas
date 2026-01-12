@@ -41,52 +41,43 @@
 
   <p id="status"></p>
 
-  <script>
-    async function enviar() {
-      const texto = document.getElementById("mensagem").value.trim();
-      const status = document.getElementById("status");
+<script>
+  async function enviar() {
+    const texto = document.getElementById("mensagem").value.trim();
+    const status = document.getElementById("status");
 
-      if (!texto) {
-        status.innerText = "Digite uma mensagem antes de enviar.";
-        return;
-      }
-
-      status.innerText = "Enviando...";
-
-      try {
-        const response = await fetch(
-          "https://fseabra93.app.n8n.cloud/webhook/chat/99cb48bd-5e88-4a03-bc33-5d8e93d28393",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer ipiaba"
-            },
-            body: JSON.stringify({
-              chatInput: texto,
-              sessionId: "site-despesas"
-            })
-          }
-        );
-
-        const respostaTexto = await response.text();
-
-        if (response.ok) {
-          status.innerText =
-            "Mensagem enviada com sucesso.\n\nResposta do n8n:\n" +
-            respostaTexto;
-        } else {
-          status.innerText =
-            "Erro HTTP " + response.status + ":\n" +
-            respostaTexto;
-        }
-
-      } catch (erro) {
-        status.innerText =
-          "Erro de rede ou CORS:\n" + erro.message;
-      }
+    if (!texto) {
+      status.innerText = "Digite uma mensagem antes de enviar.";
+      return;
     }
-  </script>
+
+    status.innerText = "Enviando...";
+
+    try {
+      await fetch(
+        "https://fseabra93.app.n8n.cloud/webhook/chat/99cb48bd-5e88-4a03-bc33-5d8e93d28393",
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer ipiaba"
+          },
+          body: JSON.stringify({
+            chatInput: texto,
+            sessionId: "site-despesas"
+          })
+        }
+      );
+
+      status.innerText = "Mensagem enviada com sucesso.";
+
+    } catch (erro) {
+      status.innerText = "Erro ao enviar: " + erro.message;
+    }
+  }
+</script>
+
 
 </body>
 </html>
